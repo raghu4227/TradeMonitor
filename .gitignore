@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+venv/
+.env
+*.db
+*.db-shm
+*.db-wal
+backend/logs/
+backend/trademonitor.db
+
+# Node.js
+node_modules/
+.next/
+frontend/logs/
+
+# Misc
+*.log
+running-pids.json
+deploy-log.txt
+*.suo
+.vs/
+.DS_Store
+Thumbs.db
