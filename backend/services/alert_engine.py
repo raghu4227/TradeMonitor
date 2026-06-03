@@ -60,8 +60,16 @@ async def _close_position(session: AsyncSession, position: Position, exit_price:
         pnl_pct = (exit_price - float(position.entry_price)) / float(position.entry_price) * 100
     elif position.trade_type == "option":
         contracts = position.contracts or 1
-        pnl = (exit_price - float(position.premium_paid or 0)) * contracts * 100
-        pnl_pct = (exit_price - float(position.premium_paid or 0)) / float(position.premium_paid or 1) * 100
+        entry_premium = float(position.premium_paid or 0)
+        direction = getattr(position, "open_direction", "BTO") or "BTO"
+        if direction == "STO":
+            # Sold to open: profit = received premium minus buy-back cost
+            pnl = (entry_premium - exit_price) * contracts * 100
+            pnl_pct = (entry_premium - exit_price) / max(entry_premium, 0.01) * 100
+        else:
+            # Bought to open: profit = sell price minus paid premium
+            pnl = (exit_price - entry_premium) * contracts * 100
+            pnl_pct = (exit_price - entry_premium) / max(entry_premium, 0.01) * 100
     else:
         net_debit = float(position.net_debit_credit or 0)
         pnl = (exit_price - net_debit) * (position.contracts or 1) * 100
@@ -89,6 +97,7 @@ async def _close_position(session: AsyncSession, position: Position, exit_price:
         shares=position.shares,
         contracts=position.contracts,
         option_type=position.option_type,
+        open_direction=getattr(position, "open_direction", "BTO"),
         strike_price=position.strike_price,
         expiration_date=position.expiration_date,
         premium_paid=position.premium_paid,
@@ -140,12 +149,14 @@ async def process_position(session: AsyncSession, position: Position):
         pnl = (current_price - float(position.entry_price)) * shares
         pnl_pct = (current_price - float(position.entry_price)) / float(position.entry_price) * 100
     elif position.trade_type == "option":
-        pnl = (current_price - float(position.premium_paid or 0)) * (position.contracts or 1) * 100
-        pnl_pct = (current_price - float(position.premium_paid or 0)) / float(position.premium_paid or 1) * 100
+        # No real-time option price feed — cannot compute unrealized P&L from stock price.
+        # Keep at 0 to avoid showing meaningless values.
+        pnl = 0.0
+        pnl_pct = 0.0
     else:
-        net_debit = float(position.net_debit_credit or 0)
-        pnl = (current_price - net_debit) * (position.contracts or 1) * 100
-        pnl_pct = (current_price - net_debit) / max(net_debit, 0.01) * 100
+        # No real-time spread price feed — cannot compute unrealized P&L from stock price.
+        pnl = 0.0
+        pnl_pct = 0.0
 
     # Initialize stops if not set
     if not position.stop_loss:
@@ -192,14 +203,18 @@ async def process_position(session: AsyncSession, position: Position):
             indicators=indicators,
         )
     elif position.trade_type == "option":
+        # No real-time option price feed — pass entry_premium as current_premium so
+        # premium-based stop/profit comparisons don't fire using the stock price.
+        # Only DTE-based exits (theta decay warnings) remain active.
+        entry_premium = float(position.premium_paid or position.entry_price)
         decision = evaluate_option_position(
             ticker=position.ticker,
             option_type=position.option_type or "call",
-            entry_premium=float(position.premium_paid or position.entry_price),
-            current_premium=current_price,
+            entry_premium=entry_premium,
+            current_premium=entry_premium,
             stop_loss=float(position.stop_loss or 0),
-            profit_target_1=float(position.profit_target_1 or current_price * 10),
-            profit_target_2=float(position.profit_target_2 or current_price * 10),
+            profit_target_1=float(position.profit_target_1 or entry_premium * 10),
+            profit_target_2=float(position.profit_target_2 or entry_premium * 10),
             days_to_expiry=days_to_expiry,
             rsi=indicators.get("rsi"),
             indicators=indicators,
@@ -208,11 +223,14 @@ async def process_position(session: AsyncSession, position: Position):
         net_debit = float(position.net_debit_credit or position.entry_price)
         spread = position.spread_structure or {}
         max_profit = spread.get("max_profit", net_debit * 2)
+        # No real-time spread price feed — pass net_debit as current_value so
+        # value-based stop/profit checks don't fire using the underlying stock price.
+        # Only DTE-based exits remain active.
         decision = evaluate_vertical_spread(
             ticker=position.ticker,
             strategy_type=position.strategy_type or "vertical",
             net_debit=net_debit,
-            current_value=current_price,
+            current_value=net_debit,
             max_profit=max_profit,
             stop_loss=float(position.stop_loss or 0),
             profit_target_1=float(position.profit_target_1 or net_debit * 1.5),

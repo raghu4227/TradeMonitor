@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.4" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <RegistrationInfo>
+    <Description>TradeMonitor FastAPI backend on port 8000 - auto-start on boot, restart on failure</Description>
+    <Author>TradeMonitor</Author>
+  </RegistrationInfo>
+  <Triggers>
+    <BootTrigger>
+      <Enabled>true</Enabled>
+      <Delay>PT10S</Delay>
+    </BootTrigger>
+  </Triggers>
+  <Principals>
+    <Principal id="Author">
+      <UserId>S-1-5-18</UserId>
+      <RunLevel>HighestAvailable</RunLevel>
+    </Principal>
+  </Principals>
+  <Settings>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <AllowHardTerminate>true</AllowHardTerminate>
+    <StartWhenAvailable>true</StartWhenAvailable>
+    <ExecutionTimeLimit>PT0S</ExecutionTimeLimit>
+    <Priority>4</Priority>
+    <RestartOnFailure>
+      <Interval>PT1M</Interval>
+      <Count>10</Count>
+    </RestartOnFailure>
+    <IdleSettings>
+      <StopOnIdleEnd>false</StopOnIdleEnd>
+      <RestartOnIdle>false</RestartOnIdle>
+    </IdleSettings>
+  </Settings>
+  <Actions Context="Author">
+    <Exec>
+      <Command>C:\Claude\Projects\TradeMonitor\backend\venv\Scripts\python.exe</Command>
+      <Arguments>-m uvicorn main:app --host 0.0.0.0 --port 8000 --workers 1</Arguments>
+      <WorkingDirectory>C:\Claude\Projects\TradeMonitor\backend</WorkingDirectory>
+    </Exec>
+  </Actions>
+</Task>

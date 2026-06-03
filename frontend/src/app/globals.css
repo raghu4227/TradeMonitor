@@ -69,16 +69,20 @@ body {
 .pnl-negative { color: #FF4444; }
 .pnl-neutral { color: #8b949e; }
 
-/* Form inputs */
+/* Form inputs — force dark theme on ALL inputs including untyped */
+input,
 input[type="text"],
 input[type="number"],
 input[type="date"],
 input[type="datetime-local"],
+input[type="email"],
+input[type="password"],
 select,
 textarea {
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border);
-  color: var(--text-primary);
+  background: #21262d !important;
+  border: 1px solid #30363d !important;
+  color: #e6edf3 !important;
+  -webkit-text-fill-color: #e6edf3 !important;
   border-radius: 6px;
   padding: 8px 12px;
   font-size: 14px;
@@ -89,14 +93,32 @@ textarea {
 input:focus,
 select:focus,
 textarea:focus {
-  outline: none;
-  border-color: #33B5E5;
-  box-shadow: 0 0 0 2px rgba(51,181,229,0.15);
+  outline: none !important;
+  border-color: #33B5E5 !important;
+  box-shadow: 0 0 0 2px rgba(51,181,229,0.15) !important;
+}
+
+/* Override browser autofill white background */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 100px #21262d inset !important;
+  -webkit-text-fill-color: #e6edf3 !important;
+  caret-color: #e6edf3 !important;
+  border: 1px solid #30363d !important;
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: #484f58;
+  color: #484f58 !important;
+  -webkit-text-fill-color: #484f58 !important;
+}
+
+/* Select option dark styling */
+select option {
+  background: #21262d;
+  color: #e6edf3;
 }
 
 /* Stat cards */

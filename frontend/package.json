@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && node -e \"require('fs').writeFileSync('.next/standalone/start-next.js', 'process.env.PORT=process.env.ASPNETCORE_PORT||process.env.PORT||\\\"3000\\\";require(\\\"./server.js\\\");')\"",
     "start": "next start",
     "lint": "next lint"
   },

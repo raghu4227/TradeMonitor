@@ -32,6 +32,7 @@ class TradeCreate(BaseModel):
 
     # Option
     option_type: Optional[str] = Field(None, pattern="^(call|put)$")
+    open_direction: Optional[str] = Field(None, pattern="^(BTO|STO)$")  # Buy to Open | Sell to Open
     strike_price: Optional[float] = None
     expiration_date: Optional[date] = None
     premium_paid: Optional[float] = None
@@ -82,6 +83,7 @@ class PositionOut(BaseModel):
     position_size: float
     shares: Optional[int]
     option_type: Optional[str]
+    open_direction: Optional[str]
     strike_price: Optional[float]
     expiration_date: Optional[date]
     premium_paid: Optional[float]
@@ -122,6 +124,7 @@ class TradeHistoryOut(BaseModel):
     shares: Optional[int]
     contracts: Optional[int]
     option_type: Optional[str]
+    open_direction: Optional[str]
     strike_price: Optional[float]
     expiration_date: Optional[date]
     premium_paid: Optional[float]

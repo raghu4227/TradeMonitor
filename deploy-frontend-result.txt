@@ -1,0 +1,3 @@
+[OK] Copied standalone build to C:\inetpub\wwwroot\TradeMonitor
+[OK] Copied static assets
+[OK] App pool restarted

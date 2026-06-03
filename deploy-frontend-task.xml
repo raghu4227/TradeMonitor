@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <RegistrationInfo><Description>One-shot: deploy frontend to IIS</Description></RegistrationInfo>
+  <Triggers/>
+  <Principals>
+    <Principal id="Author">
+      <LogonType>InteractiveToken</LogonType>
+      <RunLevel>HighestAvailable</RunLevel>
+    </Principal>
+  </Principals>
+  <Settings>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <ExecutionTimeLimit>PT3M</ExecutionTimeLimit>
+    <Priority>7</Priority>
+  </Settings>
+  <Actions Context="Author">
+    <Exec>
+      <Command>powershell.exe</Command>
+      <Arguments>-ExecutionPolicy Bypass -NonInteractive -WindowStyle Hidden -File "C:\Claude\Projects\TradeMonitor\deploy-frontend.ps1"</Arguments>
+    </Exec>
+  </Actions>
+</Task>

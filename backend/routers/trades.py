@@ -60,6 +60,7 @@ async def create_trade(trade: TradeCreate, db: AsyncSession = Depends(get_db)):
         position_size=trade.position_size,
         shares=trade.shares,
         option_type=trade.option_type,
+        open_direction=trade.open_direction or "BTO",
         strike_price=trade.strike_price,
         expiration_date=trade.expiration_date,
         premium_paid=trade.premium_paid,
@@ -92,12 +93,12 @@ async def create_trade(trade: TradeCreate, db: AsyncSession = Depends(get_db)):
         profit_target_2=float(pos.profit_target_2) if pos.profit_target_2 else None,
         atr=float(pos.atr) if pos.atr else None,
         indicators={k: v for k, v in (indicators or {}).items() if k != "price"},
-        market_context=f"Trend: {(indicators or {}).get('trend', 'N/A')}, ATR: {atr:.4f if atr else 'N/A'}",
+        market_context=f"Trend: {(indicators or {}).get('trend', 'N/A')}, ATR: {f'{atr:.4f}' if atr else 'N/A'}",
         reasoning=(
             f"New {pos.trade_type} trade entered: {pos.ticker} at ${float(pos.entry_price):.2f}. "
-            f"Initial stop set at ${float(pos.stop_loss):.2f if pos.stop_loss else 0:.2f} "
-            f"(ATR-based). Targets: ${float(pos.profit_target_1):.2f if pos.profit_target_1 else 0:.2f} / "
-            f"${float(pos.profit_target_2):.2f if pos.profit_target_2 else 0:.2f}. "
+            f"Initial stop set at ${float(pos.stop_loss or 0):.2f} "
+            f"(ATR-based). Targets: ${float(pos.profit_target_1 or 0):.2f} / "
+            f"${float(pos.profit_target_2 or 0):.2f}. "
             f"Trade thesis recorded. Position now under active monitoring."
         ),
     )

@@ -26,6 +26,7 @@ class Position(Base):
 
     # Option fields (nullable for stocks)
     option_type = Column(String(10))        # call | put
+    open_direction = Column(String(10), default="BTO")  # BTO | STO
     strike_price = Column(Numeric(14, 4))
     expiration_date = Column(Date)
     premium_paid = Column(Numeric(14, 4))
@@ -81,6 +82,7 @@ class TradeHistory(Base):
 
     # Option fields (preserved from original)
     option_type = Column(String(10))
+    open_direction = Column(String(10), default="BTO")  # BTO | STO
     strike_price = Column(Numeric(14, 4))
     expiration_date = Column(Date)
     premium_paid = Column(Numeric(14, 4))

@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(netstat:*)",
+      "Bash(\"venv/Scripts/python.exe\":*)",
+      "Bash(curl:*)",
+      "Bash(\"C:/Claude/Projects/TradeMonitor/backend/venv/Scripts/python.exe\":*)",
+      "Bash(where nssm:*)",
+      "Bash(powershell.exe:*)",
+      "Bash(cmd.exe:*)",
+      "Bash(schtasks:*)",
+      "Bash(cmd:*)",
+      "Bash(taskkill:*)",
+      "Bash(cp:*)",
+      "Bash(python:*)"
+    ]
+  }
+}

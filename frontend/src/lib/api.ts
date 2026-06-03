@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { Position, TradeHistory, Alert, DashboardSummary, HistorySummary } from './types';
 
-const api = axios.create({ baseURL: '/api' });
+const api = axios.create({ baseURL: process.env.NEXT_PUBLIC_API_BASE || '/api' });
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 export const getDashboardSummary = () =>

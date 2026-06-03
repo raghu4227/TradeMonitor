@@ -35,6 +35,7 @@ export interface Position {
   position_size: number;
   shares: number | null;
   option_type: OptionType | null;
+  open_direction: 'BTO' | 'STO' | null;
   strike_price: number | null;
   expiration_date: string | null;
   premium_paid: number | null;
@@ -70,6 +71,7 @@ export interface TradeHistory {
   shares: number | null;
   contracts: number | null;
   option_type: OptionType | null;
+  open_direction: 'BTO' | 'STO' | null;
   strike_price: number | null;
   expiration_date: string | null;
   premium_paid: number | null;
@@ -137,6 +139,7 @@ export interface TradeFormData {
   shares: string;
   // Option
   option_type: OptionType | '';
+  open_direction: 'BTO' | 'STO';
   strike_price: string;
   expiration_date: string;
   premium_paid: string;

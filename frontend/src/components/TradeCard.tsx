@@ -50,9 +50,15 @@ export default function TradeCard({ position: pos, onClosed }: Props) {
     }
   };
 
+  // Option direction helpers
+  const isOption = pos.trade_type === 'option';
+  const openDir = pos.open_direction || 'BTO';
+  const closeLabel = isOption ? (openDir === 'STO' ? 'Buy to Close' : 'Sell to Close') : 'Close Position';
+  const closeReason = isOption ? (openDir === 'STO' ? 'BTC' : 'STC') : '';
+
   // Get underlying price label
-  const priceLabel = pos.trade_type === 'option'
-    ? `Premium: $${currentPrice?.toFixed(2)}`
+  const priceLabel = isOption
+    ? `${openDir === 'STO' ? 'Received' : 'Premium'}: $${currentPrice?.toFixed(2)}`
     : pos.trade_type === 'vertical'
     ? `Value: $${currentPrice?.toFixed(2)}`
     : `$${currentPrice?.toFixed(2)}`;
@@ -77,7 +83,7 @@ export default function TradeCard({ position: pos, onClosed }: Props) {
             pos.trade_type === 'vertical'
               ? (pos.strategy_type?.replace('_', ' ') || 'Spread')
               : pos.trade_type === 'option'
-              ? `${pos.option_type?.toUpperCase()} $${pos.strike_price}`
+              ? `${openDir} ${pos.option_type?.toUpperCase()} $${pos.strike_price}`
               : pos.trade_type
           }</span>
         </div>
@@ -185,15 +191,17 @@ export default function TradeCard({ position: pos, onClosed }: Props) {
           {/* Close form */}
           {showCloseForm ? (
             <div style={{ padding: '12px', background: '#21262d', borderRadius: '8px', border: '1px solid #30363d' }}>
-              <div style={{ fontSize: '12px', fontWeight: 600, color: '#FF4444', marginBottom: '10px' }}>CLOSE POSITION</div>
+              <div style={{ fontSize: '12px', fontWeight: 600, color: '#FF4444', marginBottom: '10px' }}>{closeLabel.toUpperCase()}</div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
                 <div>
-                  <label style={{ fontSize: '11px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>Exit Price</label>
+                  <label style={{ fontSize: '11px', color: '#8b949e', display: 'block', marginBottom: '4px' }}>
+                    {isOption ? 'Close Premium' : 'Exit Price'}
+                  </label>
                   <input
                     type="number"
                     value={exitPrice}
                     onChange={(e) => setExitPrice(e.target.value)}
-                    placeholder={currentPrice.toFixed(2)}
+                    placeholder={isOption ? (pos.premium_paid?.toFixed(2) || '0.00') : currentPrice.toFixed(2)}
                     step="0.01"
                   />
                 </div>
@@ -202,7 +210,7 @@ export default function TradeCard({ position: pos, onClosed }: Props) {
                   <input
                     value={exitReason}
                     onChange={(e) => setExitReason(e.target.value)}
-                    placeholder="Stop hit, target reached..."
+                    placeholder={closeReason || 'Stop hit, target reached...'}
                   />
                 </div>
               </div>
@@ -218,19 +226,19 @@ export default function TradeCard({ position: pos, onClosed }: Props) {
                   disabled={closing}
                   style={{ flex: 2, padding: '8px', background: '#FF4444', border: 'none', borderRadius: '6px', color: 'white', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}
                 >
-                  {closing ? 'Closing...' : 'Confirm Close'}
+                  {closing ? 'Closing...' : `Confirm ${closeLabel}`}
                 </button>
               </div>
             </div>
           ) : (
             <button
-              onClick={() => setShowCloseForm(true)}
+              onClick={() => { setShowCloseForm(true); if (closeReason) setExitReason(closeReason); }}
               style={{
                 padding: '8px 16px', background: 'rgba(255,68,68,0.1)', border: '1px solid rgba(255,68,68,0.3)',
                 borderRadius: '6px', color: '#FF4444', cursor: 'pointer', fontSize: '13px', fontWeight: 600,
               }}
             >
-              Close Position
+              {closeLabel}
             </button>
           )}
         </div>

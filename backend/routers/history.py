@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, case
 from typing import Optional
 from datetime import date
 
@@ -47,7 +47,7 @@ async def history_summary(db: AsyncSession = Depends(get_db)):
             func.sum(TradeHistory.realized_pnl).label("total_pnl"),
             func.avg(TradeHistory.pnl_percent).label("avg_pnl_pct"),
             func.sum(
-                func.cast(TradeHistory.realized_pnl > 0, "int")
+                case((TradeHistory.realized_pnl > 0, 1), else_=0)
             ).label("winners"),
         )
     )

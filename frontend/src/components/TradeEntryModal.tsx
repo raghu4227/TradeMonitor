@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 const EMPTY_FORM: TradeFormData = {
   ticker: '', trade_type: 'stock', entry_date: new Date().toISOString().slice(0, 16),
   entry_price: '', position_size: '1000', trade_reason: '',
-  shares: '', option_type: '', strike_price: '', expiration_date: '', premium_paid: '', contracts: '',
+  shares: '', option_type: '', open_direction: 'BTO', strike_price: '', expiration_date: '', premium_paid: '', contracts: '',
   strategy_type: 'bull_call', long_strike: '', long_premium: '', long_option_type: 'call',
   short_strike: '', short_premium: '', short_option_type: 'call', net_debit_credit: '', max_profit: '',
 };
@@ -47,6 +47,7 @@ export default function TradeEntryModal({ onClose, onCreated }: Props) {
         payload.shares = parseInt(form.shares);
       } else if (form.trade_type === 'option') {
         payload.option_type = form.option_type;
+        payload.open_direction = form.open_direction || 'BTO';
         payload.strike_price = parseFloat(form.strike_price);
         payload.expiration_date = form.expiration_date;
         payload.premium_paid = parseFloat(form.premium_paid);
@@ -151,7 +152,7 @@ export default function TradeEntryModal({ onClose, onCreated }: Props) {
             </div>
             <div style={groupStyle}>
               <label style={labelStyle}>Position Size ($) *</label>
-              <input type="number" value={form.position_size} onChange={(e) => set('position_size', e.target.value)} placeholder="1000" required min="1" step="100" />
+              <input type="number" value={form.position_size} onChange={(e) => set('position_size', e.target.value)} placeholder="1000" required min="1" step="1" />
             </div>
           </div>
 
@@ -177,6 +178,38 @@ export default function TradeEntryModal({ onClose, onCreated }: Props) {
           {/* Option fields */}
           {form.trade_type === 'option' && (
             <>
+              {/* Open Direction — BTO / STO */}
+              <div>
+                <label style={labelStyle}>Direction *</label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  {(['BTO', 'STO'] as const).map((dir) => (
+                    <button
+                      key={dir}
+                      type="button"
+                      onClick={() => set('open_direction', dir)}
+                      style={{
+                        padding: '10px 8px',
+                        borderRadius: '6px',
+                        border: '1px solid',
+                        borderColor: form.open_direction === dir ? (dir === 'BTO' ? '#00C851' : '#F5A623') : '#30363d',
+                        background: form.open_direction === dir ? (dir === 'BTO' ? 'rgba(0,200,81,0.1)' : 'rgba(245,166,35,0.1)') : '#21262d',
+                        color: form.open_direction === dir ? (dir === 'BTO' ? '#00C851' : '#F5A623') : '#8b949e',
+                        cursor: 'pointer',
+                        fontSize: '13px',
+                        fontWeight: form.open_direction === dir ? 700 : 400,
+                        transition: 'all 0.15s',
+                        textAlign: 'center',
+                      }}
+                    >
+                      {dir === 'BTO' ? 'Buy to Open' : 'Sell to Open'}
+                      <div style={{ fontSize: '10px', opacity: 0.7, marginTop: '2px' }}>
+                        {dir === 'BTO' ? 'Long option' : 'Short / credit'}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div style={rowStyle}>
                 <div style={groupStyle}>
                   <label style={labelStyle}>Option Type *</label>
@@ -197,7 +230,7 @@ export default function TradeEntryModal({ onClose, onCreated }: Props) {
                   <input type="date" value={form.expiration_date} onChange={(e) => set('expiration_date', e.target.value)} required />
                 </div>
                 <div style={groupStyle}>
-                  <label style={labelStyle}>Premium Paid *</label>
+                  <label style={labelStyle}>{form.open_direction === 'STO' ? 'Premium Received *' : 'Premium Paid *'}</label>
                   <input type="number" value={form.premium_paid} onChange={(e) => set('premium_paid', e.target.value)} placeholder="2.50" required step="0.01" />
                 </div>
               </div>
